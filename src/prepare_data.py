@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+
 from src.utils.seasonality_effect import get_seasonality
 from src.utils.utils import week_of_month
 

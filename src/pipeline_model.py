@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 
 # import standart scaller
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 from src.evaluate_model import report_metrics, weighted_absolute_percentage_error
 from src.optimize_hyperparams import optimize_linear_regression
 from src.prepare_data import add_seasonality, agg_by_week, load_data
