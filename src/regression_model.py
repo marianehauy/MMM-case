@@ -1,6 +1,6 @@
 import joblib
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
@@ -13,7 +13,7 @@ from src.utils.carryover_effect import ExponentialCarryover
 from src.utils.orthogonalization import VariableOrthogonalization
 from src.utils.ridge_with_constrains_model import RidgeWithPositiveConstraints
 from src.utils.saturation_effect import SaturationTransformation
-from src.utils.mean_scaler import MeanScaler
+
 
 class MMMRegression(BaseEstimator, RegressorMixin):
     def __init__(
@@ -51,7 +51,7 @@ class MMMRegression(BaseEstimator, RegressorMixin):
 
     def transform_to_df(self, X, features):
         return pd.DataFrame(X, columns=features)
-    
+
     def divide_by_mean(self, X):
         # filter X > 0
         mean_value = X[X > 0].mean()
@@ -60,7 +60,7 @@ class MMMRegression(BaseEstimator, RegressorMixin):
 
     def initialize_model(self):
         self.model = None
-        
+
         col_sat, col_carry = [], []
         for media in self.medias:
             pipe_carry = Pipeline(
@@ -82,16 +82,17 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                             ),
                         ),
                     )
-                ])
-            
+                ]
+            )
+
             preprocessor = ColumnTransformer(
                 transformers=[
-                    ('std_scaler', StandardScaler(), self.scale_features),
-                    ('minmax_scaler', MinMaxScaler(), self.normalize_features),
+                    ("std_scaler", StandardScaler(), self.scale_features),
+                    ("minmax_scaler", MinMaxScaler(), self.normalize_features),
                     # ("divide_by_mean", MeanScaler(), self.medias)
                 ],
-                remainder='passthrough'  # Manter as outras colunas sem transformação
-                )
+                remainder="passthrough",  # Manter as outras colunas sem transformação
+            )
             pipe_sat = Pipeline(
                 [
                     (
@@ -129,7 +130,11 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df1",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.medias + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(self.medias + self.all_features)
+                                )
+                            },
                         ),
                     ),
                     ("preprocessor", preprocessor),
@@ -137,7 +142,15 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df2",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.scale_features + self.normalize_features + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(
+                                        self.scale_features
+                                        + self.normalize_features
+                                        + self.all_features
+                                    )
+                                )
+                            },
                         ),
                     ),
                     ("saturation", saturation),
@@ -145,7 +158,11 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df3",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.medias + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(self.medias + self.all_features)
+                                )
+                            },
                         ),
                     ),
                     (
@@ -171,7 +188,11 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df1",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.medias + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(self.medias + self.all_features)
+                                )
+                            },
                         ),
                     ),
                     ("preprocessor", preprocessor),
@@ -179,7 +200,15 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df2",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.scale_features + self.normalize_features + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(
+                                        self.scale_features
+                                        + self.normalize_features
+                                        + self.all_features
+                                    )
+                                )
+                            },
                         ),
                     ),
                     ("saturation", saturation),
@@ -187,7 +216,11 @@ class MMMRegression(BaseEstimator, RegressorMixin):
                         "to_df3",
                         FunctionTransformer(
                             self.transform_to_df,
-                            kw_args={"features": list(dict.fromkeys(self.medias + self.all_features))},
+                            kw_args={
+                                "features": list(
+                                    dict.fromkeys(self.medias + self.all_features)
+                                )
+                            },
                         ),
                     ),
                     (

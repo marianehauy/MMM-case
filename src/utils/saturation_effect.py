@@ -13,7 +13,7 @@ class SaturationTransformation(BaseEstimator, TransformerMixin):
         midpoint=0.5,
         lambda_=10,
         beta=1,
-        normalize = False
+        normalize=False,
     ):
         self.function_curve = function_curve
         self.slope_s = slope_s
@@ -52,16 +52,17 @@ def hill_saturation(x, slope_s, midpoint, normalize=False):
 
     Returns:
     array-like: Efeito do gasto em mídia.
-    """ 
+    """
     if normalize:
         half_saturation_k_transformed = midpoint * (np.max(x) - np.min(x)) + np.min(x)
     else:
         half_saturation_k_transformed = midpoint
         x = np.where(x > 1, 1, x)
 
-    hill = (1 + half_saturation_k_transformed**slope_s / x**slope_s)**-1
-    hill = np.nan_to_num(hill, nan = 0)
+    hill = (1 + half_saturation_k_transformed**slope_s / x**slope_s) ** -1
+    hill = np.nan_to_num(hill, nan=0)
     return hill
+
 
 def logistic_saturation(x, beta, midpoint, normalize=False):
     """
@@ -82,7 +83,8 @@ def logistic_saturation(x, beta, midpoint, normalize=False):
         normalized_investment = (x - np.min(x)) / diff
     else:
         normalized_investment = np.where(x > 1, 1, x)
-    return 1 / (1 + np.exp(-beta * (normalized_investment-midpoint)))
+    return 1 / (1 + np.exp(-beta * (normalized_investment - midpoint)))
+
 
 def exponential_saturation(x, lambda_, normalize=False):
     """
@@ -102,7 +104,7 @@ def exponential_saturation(x, lambda_, normalize=False):
         normalized_investment = (x - np.min(x)) / diff
     else:
         normalized_investment = np.where(x > 1, 1, x)
-    return (1 - np.exp(-lambda_ * (normalized_investment)))
+    return 1 - np.exp(-lambda_ * (normalized_investment))
 
 
 # if main
@@ -111,7 +113,7 @@ if __name__ == "__main__":
     max_invest = 1.4
     x = pd.Series(np.linspace(0, max_invest, 21))
     x.index = np.linspace(0, 1, len(x))
-    
+
     plt.figure(figsize=(8, 5))
     plt.plot(x.index, x, label="Original curve")
     plt.ylim(0, 1)
@@ -121,15 +123,17 @@ if __name__ == "__main__":
     plt.ylabel("Retorno")
 
     # hill
-    midpoint = 0.5 # half saturation, range between 0 and 1
+    midpoint = 0.5  # half saturation, range between 0 and 1
     for s in [5]:
         dict_hill = SaturationTransformation(
-            function_curve="hill", midpoint=midpoint, slope_s=s,normalize=False
+            function_curve="hill", midpoint=midpoint, slope_s=s, normalize=False
         ).fit_transform(x.values.reshape(-1, 1))
-        plt.plot(x, dict_hill, label=f"Hill curve with midpoint = {midpoint} and c = {s}")
+        plt.plot(
+            x, dict_hill, label=f"Hill curve with midpoint = {midpoint} and c = {s}"
+        )
     plt.legend()
     plt.show()
-    
+
     # logistic
     for b in [5, 10, 20]:
         log = SaturationTransformation(
@@ -138,13 +142,13 @@ if __name__ == "__main__":
         plt.plot(x, log, label=f"Logistic curve with beta = {b}")
     plt.legend()
     plt.show()
-    
+
     # exp
     for lambda_ in [0.5, 1, 1.5, 2]:
         exp = SaturationTransformation(
             function_curve="exponential", lambda_=lambda_
         ).fit_transform(x.values.reshape(-1, 1))
         plt.plot(x, exp, label=f"Exp curve with lambda = {lambda_}")
-        
+
     plt.legend()
     plt.show()

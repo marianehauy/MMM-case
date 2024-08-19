@@ -3,7 +3,9 @@ import calendar
 import numpy as np
 import pandas as pd
 from scipy.stats import shapiro
+
 calendar.setfirstweekday(0)
+
 
 def week_of_month(dt: str | pd.Timestamp) -> int:
     """

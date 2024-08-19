@@ -15,6 +15,7 @@ from src.evaluate_model import weighted_absolute_percentage_error
 
 warnings.filterwarnings("ignore")
 
+
 def optimize_linear_regression(
     model,
     X,
@@ -31,10 +32,12 @@ def optimize_linear_regression(
         # ADSTOCK
         param_distributions[
             f"adstock__{media}_pipe__carryover__func"
-        ] = CategoricalDistribution([
-            # "geo", 
-            "delayed"
-            ])
+        ] = CategoricalDistribution(
+            [
+                # "geo",
+                "delayed"
+            ]
+        )
         # decay factor
         param_distributions[
             f"adstock__{media}_pipe__carryover__decay_factor"
@@ -52,17 +55,17 @@ def optimize_linear_regression(
         # saturation__func can be "hill", "log" or "exponential"
         param_distributions[
             f"saturation__{media}_pipe__saturation__function_curve"
-        ] = CategoricalDistribution([
-            "hill", 
-            # "logistic", 
-            # "exponential"
-            ])
-        
+        ] = CategoricalDistribution(
+            [
+                "hill",
+                # "logistic",
+                # "exponential"
+            ]
+        )
+
         param_distributions[
             f"saturation__{media}_pipe__saturation__midpoint"
-        ] = FloatDistribution(
-            0.1, 1
-        )
+        ] = FloatDistribution(0.1, 1)
 
         param_distributions[
             f"saturation__{media}_pipe__saturation__slope_s"
@@ -74,8 +77,7 @@ def optimize_linear_regression(
 
         # param_distributions[
         #     f"saturation__{media}_pipe__saturation__lambda_"
-        # ] = FloatDistribution(0.5, 2)        
-
+        # ] = FloatDistribution(0.5, 2)
 
         # write the distribution for the regression
         param_distributions["regression__alpha"] = FloatDistribution(0.2, 1)
