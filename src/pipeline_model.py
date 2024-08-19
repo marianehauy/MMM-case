@@ -34,15 +34,15 @@ confounders = [
 # all_features = confounders + medias + season_cols
 all_features = confounders + medias
 scale_features = ["notifications_sent"]
-normalize_features = ["n_active_users", "holiday", "week_of_month"]
-
+normalize_features = ["n_active_users", "holiday", "week_of_month"] + medias
+positive_features=medias+["event1", "event2"]
 model_type = "ridge"
 scorer = weighted_absolute_percentage_error
 scorer = "r2"
 n_trials = 300
 
 
-def main(df=None, mode="train", optimize=False):
+def main(df=None, mode="train", optimize=False, dump = False):
     if df is None:
         # load data
         df = (
@@ -51,11 +51,12 @@ def main(df=None, mode="train", optimize=False):
             .pipe(add_seasonality, period_year=52, degree=2, col_name="year")
         )
         assert isinstance(df, pd.DataFrame)
+        # df["tv_other_medias"] = df["tv"] * df["other_medias"]
 
     if mode == "train":
         # train test split
         df_train, df_test = train_test_split(
-            df, test_size=0.20, random_state=42, shuffle=False
+            df, test_size=0.15, random_state=42, shuffle=False
         )  # shuffle False to keep the order
         print(
             f"Train set from week {int(df_train.index.min())} to {int(df_train.index.max())}"
@@ -84,7 +85,7 @@ def main(df=None, mode="train", optimize=False):
                 medias=medias,
                 n_trials=n_trials,
                 scorer=scorer,
-                dump=False,
+                dump=dump,
                 dir="models",
             )
             best_params = tuned_model.best_params_
@@ -100,8 +101,8 @@ def main(df=None, mode="train", optimize=False):
             medias,
             model_type=model_type,
             positive_features=medias + ["event1", "event2"],
-            confounders=confounders,
-            biased_features=[],
+            # confounders=confounders,
+            # biased_features=[],
             normalize_features=normalize_features,
             scale_features=scale_features,
             all_features=all_features,
@@ -113,7 +114,8 @@ def main(df=None, mode="train", optimize=False):
         pred_test = mmm.predict(df_test[all_features])
         mmm.score(df_train["traffic"], pred_train)
         mmm.score(df_test["traffic"], pred_test)
-        mmm.save_model("models")
+        if dump:
+            mmm.save_model("models")
 
         weights = {
             col: float(coef)
@@ -122,7 +124,7 @@ def main(df=None, mode="train", optimize=False):
             )
         }
         weights = pd.Series(weights).sort_values(ascending=False)
-        plot_weights(weights / weights.sum() * 100, figsize=(10, 5), save=True)
+        plot_weights(weights / weights.sum() * 100, figsize=(10, 5), save=dump)
 
         plot_prediction(
             df_train["traffic"],
@@ -130,14 +132,9 @@ def main(df=None, mode="train", optimize=False):
             pred_train,
             pred_test,
             fig_size=(10, 5),
-            save=True,
+            save=dump,
         )
     elif mode == "predict":
-        norm = MinMaxScaler()
-        df[normalize_features] = norm.fit_transform(df[normalize_features])
-
-        scale = StandardScaler()
-        df[scale_features] = scale.fit_transform(df[scale_features])
         # Load the model
         path = sorted(list(glob("models/regression_model_*.joblib")), reverse=True)[0]
         mmm = MMMRegression(
@@ -151,30 +148,30 @@ def main(df=None, mode="train", optimize=False):
             all_features=all_features,
         ).load_model(path=path)
         mmm.predict(df[all_features])
-        report_metrics(df["traffic"], mmm.predict(df[all_features]))
+        mmm.score(df["traffic"], mmm.predict(df[all_features]))
 
     else:
         raise ValueError("Mode should be either 'train' or 'predict'")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train or test the model")
-    parser.add_argument(
-        "--mode",
-        choices=["train", "predict"],
-        default="train",
-        help="Mode to run the model",
-    )
-    parser.add_argument(
-        "--optimize",
-        action="store_true",
-        default=False,
-        help="Whether to optimize the model",
-    )
+    # parser = argparse.ArgumentParser(description="Train or test the model")
+    # parser.add_argument(
+    #     "--mode",
+    #     choices=["train", "predict"],
+    #     default="train",
+    #     help="Mode to run the model",
+    # )
+    # parser.add_argument(
+    #     "--optimize",
+    #     action="store_true",
+    #     default=False,
+    #     help="Whether to optimize the model",
+    # )
 
-    args = parser.parse_args()
-    main(args)
+    # args = parser.parse_args()
+    # main(args)
 
-    main(mode="train", optimize=False)
+    # main(mode="train", optimize=False)
     # main(mode="train", optimize=True)
-    # main(mode="predict", optimize=False)
+    main(mode="predict", optimize=False)

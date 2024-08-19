@@ -41,7 +41,7 @@ def optimize_linear_regression(
         # decay factor
         param_distributions[
             f"adstock__{media}_pipe__carryover__decay_factor"
-        ] = FloatDistribution(0.1, 1)
+        ] = FloatDistribution(0.3, 1)
         # Lag
         param_distributions[f"adstock__{media}_pipe__carryover__L"] = IntDistribution(
             3, 8
@@ -80,7 +80,7 @@ def optimize_linear_regression(
         # ] = FloatDistribution(0.5, 2)
 
         # write the distribution for the regression
-        param_distributions["regression__alpha"] = FloatDistribution(0.2, 1)
+        param_distributions["regression__alpha"] = FloatDistribution(0.1, 1)
 
     if not isinstance(scorer, str):
         scorer = make_scorer(score_func=scorer)
@@ -94,6 +94,7 @@ def optimize_linear_regression(
         random_state=0,
         scoring=scorer,
         n_jobs=-1,
+        verbose=0
     )
     tuned_model.fit(X, y)
 
@@ -107,7 +108,7 @@ def optimize_linear_regression(
             json.dump(
                 {
                     "best_params": tuned_model.best_params_,
-                    "wape": -tuned_model.best_score_,
+                    "score": -tuned_model.best_score_,
                 },
                 f,
             )

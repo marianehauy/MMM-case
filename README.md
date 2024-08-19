@@ -26,8 +26,6 @@ O pipeline do projeto é composto pelas seguintes etapas:
 ## Como Executar
 Clone o repositório:
 
-Copiar código
-bash
 1. git clone https://github.com/username/mmm-project.git
 2. cd mmm-project
 3. Instale as dependências:
@@ -41,7 +39,7 @@ Os resultados do modelo são apresentados como coeficientes que representam o im
 ## Contribuições
 Contribuições são bem-vindas! Por favor, abra uma issue ou envie um pull request.
 
-*Licença*
+## Licença
 Este projeto é licenciado sob a MIT License.
 
 

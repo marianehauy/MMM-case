@@ -20,8 +20,8 @@ class MMMRegression(BaseEstimator, RegressorMixin):
         self,
         medias,
         model_type="linear",
-        positive_features=None,
-        all_features=None,
+        positive_features=[],
+        all_features=[],
         biased_features=[],
         normalize_features=[],
         scale_features=[],
@@ -272,7 +272,7 @@ class MMMRegression(BaseEstimator, RegressorMixin):
         date_suffix = pd.Timestamp.now().strftime("%Y%m%d")
         namefile = f"regression_model_{date_suffix}.joblib"
 
-        joblib.dump(self.model, dir + "/" + namefile)
+        joblib.dump(self, dir + "/" + namefile)
         print(f"Model saved in {dir}/{namefile}")
 
     # static method
