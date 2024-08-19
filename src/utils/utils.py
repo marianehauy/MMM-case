@@ -3,7 +3,7 @@ import calendar
 import numpy as np
 import pandas as pd
 from scipy.stats import shapiro
-
+calendar.setfirstweekday(0)
 
 def week_of_month(dt: str | pd.Timestamp) -> int:
     """
@@ -14,7 +14,9 @@ def week_of_month(dt: str | pd.Timestamp) -> int:
     if isinstance(dt, str):
         dt = pd.to_datetime(dt)
     x = np.array(calendar.monthcalendar(dt.year, dt.month))
-    week_of_month = np.where(x == dt.day)[0][0] + 1
+    week_of_month = np.where(x == dt.day)[0][0]
+    if week_of_month == 0:
+        return 1
     return week_of_month
 
 

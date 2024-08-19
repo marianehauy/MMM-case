@@ -64,14 +64,6 @@ def main(df=None, mode="train", optimize=False):
             f"Test set from week {int(df_test.index.min())} to {int(df_test.index.max())}"
         )
 
-        norm = MinMaxScaler()
-        df_train[normalize_features] = norm.fit_transform(df_train[normalize_features])
-        df_test[normalize_features] = norm.transform(df_test[normalize_features])
-
-        scale = StandardScaler()
-        df_train[scale_features] = scale.fit_transform(df_train[scale_features])
-        df_test[scale_features] = scale.transform(df_test[scale_features])
-
         if optimize:
             # Load the model
             mmm = MMMRegression(
@@ -79,6 +71,8 @@ def main(df=None, mode="train", optimize=False):
                 model_type=model_type,
                 positive_features=medias + ["event1", "event2"],
                 confounders=confounders,
+                normalize_features=normalize_features,
+                scale_features=scale_features,
                 biased_features=[],
                 all_features=all_features,
             )
@@ -108,6 +102,8 @@ def main(df=None, mode="train", optimize=False):
             positive_features=medias + ["event1", "event2"],
             confounders=confounders,
             biased_features=[],
+            normalize_features=normalize_features,
+            scale_features=scale_features,
             all_features=all_features,
             best_params=best_params,
         )
@@ -150,6 +146,8 @@ def main(df=None, mode="train", optimize=False):
             positive_features=medias + ["event1", "event2"],
             confounders=confounders,
             biased_features=[],
+            normalize_features=normalize_features,
+            scale_features=scale_features,
             all_features=all_features,
         ).load_model(path=path)
         mmm.predict(df[all_features])

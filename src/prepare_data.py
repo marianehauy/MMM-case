@@ -15,7 +15,6 @@ def load_data(current_dir=current_dir):
     df["date"] = pd.to_datetime(df["date"], format="%Y-%m-%d")
     df["month"] = df.date.dt.strftime("%Y-%m")
     df["weekday"] = df.date.dt.weekday
-    df["week_of_month"] = df.date.apply(week_of_month)
     # day before holiday
     df["day_before_holiday"] = df["holiday"].shift(-1).fillna(0)
 
@@ -41,12 +40,11 @@ def agg_by_week(df):
         "other_medias": "sum",
         "holiday": "sum",  # assumption: more holidays, more or less traffic than if 1 holiday
         "month": "max",
-        "week_of_month": "max",
     }
 
     # usar resample para agrupar por semana, considerando a semana de segunda a domingo
     df_week = df.set_index("date").resample("W-Mon").agg(cols_agg).reset_index()
-
+    df_week["week_of_month"] = df_week.date.apply(week_of_month)
     # remove uncomplete weeks: remove first and last week
     df_week = df_week.iloc[1:-1]
     df_week = df_week.reset_index(drop=False)

@@ -62,7 +62,6 @@ def weights_delayed(decay_factor, theta, L):
     weight_T = decay_factor ^ (T-1 - theta)
     returns: weights of length L to calculate weighted averages with.
     """
-    # return decay_factor**((np.ones(L).cumsum())-theta)
     return decay_factor ** ((np.arange(L) - theta) ** 2)
 
 
@@ -74,10 +73,10 @@ def decay_function(half_life):
 if __name__ == "__main__":
     # plot the adstock and the original curve
     # a = pd.Series([100, 0, 0, 0, 50, 0, 0, 20, 40, 0, 0])
-    a = pd.Series([100_000, 0, 0, 0, 0, 0, 0, 0, 0])
+    a = pd.Series([1.45, 0, 0, 0, 0, 0, 0, 0, 0])
     L = 5
-    decay_factor = 0.8
-    theta = 2
+    decay_factor = 0.50896104498301
+    theta = 1
     geo = ExponentialCarryover(decay_factor, L, theta, func="geo").fit_transform(a)
     delayed = ExponentialCarryover(
         decay_factor, L, theta, func="delayed"

@@ -15,7 +15,6 @@ from src.evaluate_model import weighted_absolute_percentage_error
 
 warnings.filterwarnings("ignore")
 
-
 def optimize_linear_regression(
     model,
     X,
@@ -32,45 +31,54 @@ def optimize_linear_regression(
         # ADSTOCK
         param_distributions[
             f"adstock__{media}_pipe__carryover__func"
-        ] = CategoricalDistribution(["geo", "delayed"])
+        ] = CategoricalDistribution([
+            # "geo", 
+            "delayed"
+            ])
         # decay factor
         param_distributions[
             f"adstock__{media}_pipe__carryover__decay_factor"
         ] = FloatDistribution(0.1, 1)
         # Lag
         param_distributions[f"adstock__{media}_pipe__carryover__L"] = IntDistribution(
-            2, 8
+            3, 8
         )
         # theta
         param_distributions[
             f"adstock__{media}_pipe__carryover__theta"
-        ] = IntDistribution(1, 4)
+        ] = IntDistribution(0, 3)
 
         # SATURATION
         # saturation__func can be "hill", "log" or "exponential"
         param_distributions[
-            f"adstock__{media}_pipe__saturation__function_curve"
-        ] = CategoricalDistribution(["hill", "log", "exponential"])
-
+            f"saturation__{media}_pipe__saturation__function_curve"
+        ] = CategoricalDistribution([
+            "hill", 
+            # "logistic", 
+            # "exponential"
+            ])
+        
         param_distributions[
-            f"adstock__{media}_pipe__saturation__midpoint"
+            f"saturation__{media}_pipe__saturation__midpoint"
         ] = FloatDistribution(
-            X[X[media] > 0][media].quantile(0.25), X[X[media] > 0][media].quantile(0.95)
+            0.1, 1
         )
-        param_distributions[
-            f"adstock__{media}_pipe__saturation__c"
-        ] = FloatDistribution(0.3, 2.0)
 
         param_distributions[
-            f"adstock__{media}_pipe__saturation__beta"
-        ] = FloatDistribution(0.0000001, 1)
+            f"saturation__{media}_pipe__saturation__slope_s"
+        ] = FloatDistribution(0.5, 10)
 
-        param_distributions[
-            f"adstock__{media}_pipe__saturation__lambda_"
-        ] = FloatDistribution(0.0000001, 0.1)
+        # param_distributions[
+        #     f"saturation__{media}_pipe__saturation__beta"
+        # ] = FloatDistribution(5, 20)
+
+        # param_distributions[
+        #     f"saturation__{media}_pipe__saturation__lambda_"
+        # ] = FloatDistribution(0.5, 2)        
+
 
         # write the distribution for the regression
-        param_distributions["regression__alpha"] = FloatDistribution(0.01, 1)
+        param_distributions["regression__alpha"] = FloatDistribution(0.2, 1)
 
     if not isinstance(scorer, str):
         scorer = make_scorer(score_func=scorer)
